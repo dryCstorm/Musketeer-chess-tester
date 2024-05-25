@@ -1,7 +1,7 @@
 import pygame
-import chess.musketeer
+import library.chess.musketeer as Musketeer
 import res
-import chess
+import library.chess as Chess
 import utils
 import math
 from renderer import BoardRenderer
@@ -22,7 +22,7 @@ USER_STATE_SELECTED = 2
 
 def play_game ():
     boardrenderer.clear()
-    board = chess.musketeer.MusketeerBoard()
+    board = Musketeer.MusketeerBoard()
     game_state = GAME_STATE_PLAYING
     user_state = USER_STATE_NONE
     selected_piece = (0,0)
@@ -52,7 +52,7 @@ def play_game ():
     
     def get_pieces ():
         pieces = []
-        for square in chess.SQUARES:
+        for square in Chess.SQUARES:
             piece = board.piece_at(square)
             if piece is not None:
                 pieces.append((str(piece), square % 8 + 1, math.floor(square / 8) + 1))
