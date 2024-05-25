@@ -4,15 +4,35 @@ import res
 import library.chess as Chess
 import utils
 import math
-from renderer import BoardRenderer
+from renderergame import BoardRendererGame
+from renderersetting import BoardRendererSetting
 
 pygame.init()
 pygame.display.set_caption("Musketeer Chess")
 game_clock = pygame.time.Clock()
-boardrenderer = BoardRenderer(pygame)
 
-def selected_piece ():
-    1
+    
+SETTING_STATE_NONE = 1
+SETTING_STATE_OK = 2
+SETTING_STATE_CANCEL = 3
+def select_piece():
+    boardrenderer = BoardRendererSetting(pygame)
+    setting_state = SETTING_STATE_NONE
+    
+    boardrenderer.clear()
+    
+    while setting_state != SETTING_STATE_OK and setting_state != SETTING_STATE_CANCEL:
+        boardrenderer.draw_board()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                setting_state = SETTING_STATE_CANCEL
+                
+        pygame.display.flip()
+        game_clock.tick(60)
+        
+        
+    
     
 GAME_STATE_PLAYING = 1
 GAME_STATE_FINISHED = 2
@@ -20,11 +40,15 @@ GAME_STATE_FINISHED = 2
 USER_STATE_NONE = 1
 USER_STATE_SELECTED = 2
 
+BETZA = [("W", "D", "H", "F", "A", "G", "N", "L", "J")]
+
 def play_game ():
+    boardrenderer = BoardRendererGame(pygame)
     boardrenderer.clear()
     board = Musketeer.MusketeerBoard()
     game_state = GAME_STATE_PLAYING
     user_state = USER_STATE_NONE
+    custom_pieces = [(),()]
     selected_piece = (0,0)
     
     def get_movable_pieces ():
@@ -96,14 +120,11 @@ def play_game ():
                     elif pos != None and pos in movable_pieces_from:
                         board.push_uci(f'{utils.number_to_char(selected_piece [0])}{selected_piece [1]}{utils.number_to_char(pos [0])}{pos [1]}')
                         user_state = USER_STATE_NONE
-                        
-                
-
         
         pygame.display.flip()
         game_clock.tick(60)
     
 
 if __name__ == "__main__":
-    pygame.display.flip()
+    select_piece()
     play_game()

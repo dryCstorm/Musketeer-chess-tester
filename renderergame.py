@@ -1,11 +1,4 @@
-import pygame
-import res
-import math
-
-COLOR_WHITE = (255,255,255)
-COLOR_BORDER = (57,41,27)
-COLOR_ODD = (203, 139, 98)
-COLOR_EVEN = (242, 219, 183)
+from rendererbase import *
 
 PIECE_SIZE = 60
 BOARD_WIDTH = 560
@@ -16,33 +9,8 @@ BOARD_MAIN_WIDTH = PIECE_SIZE * 8
 BOARD_MAIN_HEIGHT = PIECE_SIZE * 10
 BOARD_MAIN_OFFSET_X = BOARD_OFFSET_X + (BOARD_WIDTH - BOARD_MAIN_WIDTH) / 2
 BOARD_MAIN_OFFSET_Y = BOARD_OFFSET_Y + (BOARD_HEIGHT - BOARD_MAIN_HEIGHT) / 2
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 680
 
-class BoardRenderer():
-    screen: pygame.Surface
-    
-    def __init__ (self, _pygame):
-        self.screen = _pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-        
-# ====================================================================================
-
-    def draw_img (self, img, offset, size):
-        self.screen.blit(pygame.transform.scale(img, size), offset)
-        
-    def draw_line(self, start, end, color = COLOR_BORDER):
-        pygame.draw.line(self.screen, color, start, end, 4)
-
-    def draw_alpha_rect(self, start, size, color, alpha):
-        temp = pygame.Surface(size)
-        temp.set_alpha(alpha)
-        temp.fill(color)
-        self.screen.blit(temp, start)
-        
-    def draw_rect(self, start, size, color = COLOR_WHITE):
-        pygame.draw.rect(self.screen, color, (start, size))
-        
-        
+class BoardRendererGame(BoardRenderer):
 # ====================================================================================
 
     def draw_board_background (self):
@@ -122,7 +90,7 @@ class BoardRenderer():
     def highlight_piece_selected(self, pieces):
         for piece in pieces:
             self.draw_highlight_selected(piece[0], piece[1])
-    
+            
 # ====================================================================================
 
     def get_board_position(self, pos):

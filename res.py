@@ -16,7 +16,7 @@ def get_image(url):
 def get_piece_image(piece_symbol):
     piece_url = resource_piece_url + piece_symbol + ".png"
     if not piece_symbol.islower():
-        piece_url = resource_piece_url + "w" + piece_symbol + ".png"
+        piece_url = resource_piece_url + piece_symbol + "w" + ".png"
     return get_image(piece_url)
 
 def get_board_image():
