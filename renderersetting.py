@@ -17,6 +17,10 @@ BACK_BUTTON_Y = PIECE_SIZE * 3
 FORWARD_BUTTON_X = BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + PIECE_SIZE * 4
 FORWARD_BUTTON_Y = PIECE_SIZE * 3
 
+HEAD_X = BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + PIECE_SIZE
+HEAD_Y = PIECE_SIZE
+HEAD_GAP = PIECE_SIZE * 2
+
 class BoardRendererSetting(BoardRenderer):
 # ====================================================================================
 
@@ -72,11 +76,11 @@ class BoardRendererSetting(BoardRenderer):
     def draw_head (self, number, icon_number, selected):
         if icon_number:
             self.draw_img(res.get_piece_image(icon_number), 
-                                (BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + PIECE_SIZE + number * PIECE_SIZE * 2, PIECE_SIZE), (PIECE_SIZE, PIECE_SIZE))
+                                (HEAD_X + number * HEAD_GAP, HEAD_Y), (PIECE_SIZE, PIECE_SIZE))
             
         if (selected):
             self.draw_img(res.get_border(), 
-                                    (BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + PIECE_SIZE + number * PIECE_SIZE * 2, PIECE_SIZE), (PIECE_SIZE, PIECE_SIZE))
+                                    (HEAD_X + number * HEAD_GAP, HEAD_Y), (PIECE_SIZE, PIECE_SIZE))
         else:
             self.draw_img(res.get_border_light(), 
                                     (BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + PIECE_SIZE + number * PIECE_SIZE * 2, PIECE_SIZE), (PIECE_SIZE, PIECE_SIZE))
@@ -102,3 +106,13 @@ class BoardRendererSetting(BoardRenderer):
     
     def is_forward(self, pos):
         return pos [0] >= FORWARD_BUTTON_X and pos [1] >= FORWARD_BUTTON_Y and pos [0] - FORWARD_BUTTON_X <= PIECE_SIZE and pos [1] - FORWARD_BUTTON_Y <= PIECE_SIZE
+    
+    def is_head(self, pos, max_count):
+        if pos [1] < HEAD_Y or pos [1] > HEAD_Y + PIECE_SIZE:
+            return None
+
+        for i in range(0, max_count):
+            if pos [0] >= HEAD_X + HEAD_GAP * i and pos [0] <= HEAD_X + HEAD_GAP * i + PIECE_SIZE:
+                return i
+            
+        return None

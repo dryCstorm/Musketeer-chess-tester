@@ -35,6 +35,8 @@ def select_piece():
             boardrenderer.draw_head (i, selected_pieces [i][0], i == wip_piece)
         
         boardrenderer.draw_icon_selector(selected_pieces [wip_piece][0])
+        if selected_pieces [wip_piece][0]:
+            boardrenderer.draw_piece_center(selected_pieces [wip_piece][0])
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -51,6 +53,8 @@ def select_piece():
                         selected_pieces [wip_piece][0] = 1
                     else:
                         selected_pieces [wip_piece][0] = selected_pieces [wip_piece][0] % 26 + 1
+                elif boardrenderer.is_head(pos, len(selected_pieces)) != None:
+                    wip_piece = boardrenderer.is_head(pos, len(selected_pieces))
                     
                 
         pygame.display.flip()
