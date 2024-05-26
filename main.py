@@ -15,18 +15,43 @@ game_clock = pygame.time.Clock()
 SETTING_STATE_NONE = 1
 SETTING_STATE_OK = 2
 SETTING_STATE_CANCEL = 3
+
+BETZA = ["W", "D", "H", "F", "A", "G", "N", "L", "J"]
+ICON_COUNT = 26
+
+selected_pieces = [[None] * (len(BETZA) + 2), [None] * (len(BETZA) + 2)]
+print(selected_pieces)
 def select_piece():
     boardrenderer = BoardRendererSetting(pygame)
     setting_state = SETTING_STATE_NONE
+    wip_piece = 0
     
     boardrenderer.clear()
     
     while setting_state != SETTING_STATE_OK and setting_state != SETTING_STATE_CANCEL:
+        boardrenderer.clear()
         boardrenderer.draw_board()
+        for i in range (0, len(selected_pieces)):
+            boardrenderer.draw_head (i, selected_pieces [i][0], i == wip_piece)
+        
+        boardrenderer.draw_icon_selector(selected_pieces [wip_piece][0])
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 setting_state = SETTING_STATE_CANCEL
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if boardrenderer.is_back(pos):
+                    if selected_pieces [wip_piece][0] == None:
+                        selected_pieces [wip_piece][0] = 26
+                    else:
+                        selected_pieces [wip_piece][0] = (selected_pieces [wip_piece][0] + 24) % 26 + 1
+                elif boardrenderer.is_forward(pos):
+                    if selected_pieces [wip_piece][0] == None:
+                        selected_pieces [wip_piece][0] = 1
+                    else:
+                        selected_pieces [wip_piece][0] = selected_pieces [wip_piece][0] % 26 + 1
+                    
                 
         pygame.display.flip()
         game_clock.tick(60)
@@ -39,8 +64,6 @@ GAME_STATE_FINISHED = 2
 
 USER_STATE_NONE = 1
 USER_STATE_SELECTED = 2
-
-BETZA = [("W", "D", "H", "F", "A", "G", "N", "L", "J")]
 
 def play_game ():
     boardrenderer = BoardRendererGame(pygame)
