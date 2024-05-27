@@ -49,6 +49,8 @@ def analyze_betza_notation(notation):
     
     return piece_movements
 
+def is_in_rect (pos, tl, size):
+    return pos [0] >= tl [0] and pos [1] >= tl [1] and pos [0] <= tl [0] + size [0] and pos [1] <= tl [1] + size [1]
 # Example usage
 notation = 'FRLB'
 movement_capabilities = analyze_betza_notation(notation)

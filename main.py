@@ -16,11 +16,22 @@ SETTING_STATE_NONE = 1
 SETTING_STATE_OK = 2
 SETTING_STATE_CANCEL = 3
 
-BETZA = ["W", "D", "H", "F", "A", "G", "N", "L", "J"]
+# F/B/L/R, S/H, LEN, C/M, G/P, J/N
+BETZA = [("W", True, True, True, True, True, True), 
+         ("D", True, False, True, True, True, True), 
+         ("H", True, False, True, True, True, True), 
+         ("F", True, False, True, True, True, True), 
+         ("A", True, False, True, True, True, True), 
+         ("G", True, False, True, True, True, True), 
+         ("N", True, True, False, True, False, False), 
+         ("L", True, True, False, True, False, False), 
+         ("J", True, True, False, True, False, False)]
+
 UN_AVAILABLE_LETTERS = ["P", "K", "Q", "R", "B", "N"]
 ICON_COUNT = 26
 
-selected_pieces = [[None] * (len(BETZA) + 2), [None] * (len(BETZA) + 2)]
+selected_pieces = [[None, None, []], [None, None, []]]
+
 def select_piece():
     boardrenderer = BoardRendererSetting(pygame)
     setting_state = SETTING_STATE_NONE
@@ -47,6 +58,10 @@ def select_piece():
         boardrenderer.draw_letter_selector(utils.number_to_upper_char(letter), letter_available)
         if selected_pieces [wip_piece][0]:
             boardrenderer.draw_piece_center(selected_pieces [wip_piece][0])
+            
+        for index, movement_setting in enumerate(selected_pieces [wip_piece][2]):
+            boardrenderer.draw_movement_setting(index, movement_setting, BETZA)
+        boardrenderer.draw_new_movement_button(len(selected_pieces [wip_piece][2]))
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -75,7 +90,31 @@ def select_piece():
                         selected_pieces [wip_piece][1] = selected_pieces [wip_piece][1] % 26 + 1                    
                 elif boardrenderer.is_head(pos, len(selected_pieces)) != None:
                     wip_piece = boardrenderer.is_head(pos, len(selected_pieces))
-                    
+                elif boardrenderer.is_new_button(pos, len(selected_pieces [wip_piece][2])):
+                    selected_pieces [wip_piece][2].append([0, "", "", "", "", "", ""])
+                else:
+                    for index, movement_setting in enumerate(selected_pieces [wip_piece][2]):
+                        button = boardrenderer.is_setting_button (pos, index, movement_setting, BETZA)
+                        if button != None:
+                            if button == "REMOVE":
+                                selected_pieces [wip_piece][2].pop(index)
+                            if button == "BL":
+                                movement_setting[0] = (movement_setting[0] - 1 + len(BETZA)) % len(BETZA)
+                            if button == "BR":
+                                movement_setting[0] = (movement_setting[0] + 1) % len(BETZA)
+                            if button == "L" or button == "R" or button == "F" or button == "B":
+                                if button in movement_setting[1]:
+                                    movement_setting[1] = movement_setting[1].replace(button, "")
+                                else:
+                                    movement_setting[1] += button
+                            if button == "SH":
+                                if movement_setting [2] == "S":
+                                    movement_setting [2] = "H"
+                                elif movement_setting [2] == "H":
+                                    movement_setting [2] = ""
+                                else:
+                                    movement_setting [2] = "S"
+                            break
                 
         pygame.display.flip()
         game_clock.tick(60)

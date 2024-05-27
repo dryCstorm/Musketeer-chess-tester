@@ -9,6 +9,16 @@ resource_border = "resources/imgs/borders/selected.png"
 resource_border_light = "resources/imgs/borders/light.png"
 resource_forward = "resources/imgs/borders/forward.png"
 resource_back = "resources/imgs/borders/back.png"
+resource_new_button = "resources/imgs/buttons/new.png"
+resource_remove_button = "resources/imgs/buttons/remove.png"
+resource_left_button = "resources/imgs/buttons/left.png"
+resource_right_button = "resources/imgs/buttons/right.png"
+resource_up_button = "resources/imgs/buttons/up.png"
+resource_down_button = "resources/imgs/buttons/down.png"
+resource_left_selected_button = "resources/imgs/buttons/left-selected.png"
+resource_right_selected_button = "resources/imgs/buttons/right-selected.png"
+resource_up_selected_button = "resources/imgs/buttons/up-selected.png"
+resource_down_selected_button = "resources/imgs/buttons/down-selected.png"
 
 images = {}
 
@@ -53,3 +63,19 @@ def get_forward():
 
 def get_back():
     return get_image(resource_back)
+
+def get_new_button():
+    return get_image(resource_new_button)
+
+def get_remove_button():
+    return get_image(resource_remove_button)
+
+def get_arrow_button(str, selected):
+    if str == "U":
+        return get_image(resource_up_selected_button if selected else resource_up_button)
+    if str == "D":
+        return get_image(resource_down_selected_button if selected else resource_down_button)
+    if str == "L":
+        return get_image(resource_left_selected_button if selected else resource_left_button)
+    if str == "R":
+        return get_image(resource_right_selected_button if selected else resource_right_button)
