@@ -22,8 +22,8 @@ def get_piece_image(piece_symbol, mapper = {}):
         return get_image(resource_piece_url + "custom/" + str(piece_symbol) + ".png")
     
     piece_symbol_img = piece_symbol
-    if piece_symbol in mapper:
-        piece_symbol_img = "custom/" + mapper ["piece_symbol"]
+    if piece_symbol.upper() in mapper:
+        piece_symbol_img = "custom/" + mapper [piece_symbol.upper()]
         
     piece_url = resource_piece_url + piece_symbol_img + ".png"
     if not piece_symbol.islower():

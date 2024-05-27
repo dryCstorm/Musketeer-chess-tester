@@ -17,6 +17,12 @@ BACK_BUTTON_Y = PIECE_SIZE * 3
 FORWARD_BUTTON_X = BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + PIECE_SIZE * 4
 FORWARD_BUTTON_Y = PIECE_SIZE * 3
 
+LETTER_BACK_BUTTON_X = BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + PIECE_SIZE
+LETTER_BACK_BUTTON_Y = PIECE_SIZE * 4
+
+LETTER_FORWARD_BUTTON_X = BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + PIECE_SIZE * 4
+LETTER_FORWARD_BUTTON_Y = PIECE_SIZE * 4
+
 HEAD_X = BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + PIECE_SIZE
 HEAD_Y = PIECE_SIZE
 HEAD_GAP = PIECE_SIZE * 2
@@ -94,6 +100,21 @@ class BoardRendererSetting(BoardRenderer):
         self.draw_img(res.get_forward(), 
                                     (FORWARD_BUTTON_X, FORWARD_BUTTON_Y), (PIECE_SIZE, PIECE_SIZE))
         
+    def draw_letter_selector(self, letter, available):
+        if letter and letter != "None":           
+            if available:
+                self.draw_letter(letter, PIECE_SIZE, (0,0,255),
+                                        ((LETTER_BACK_BUTTON_X + LETTER_FORWARD_BUTTON_X) / 2 + PIECE_SIZE / 2, LETTER_BACK_BUTTON_Y + PIECE_SIZE / 2))
+            else:
+                self.draw_letter(letter, PIECE_SIZE, (255,0,0),
+                                        ((LETTER_BACK_BUTTON_X + LETTER_FORWARD_BUTTON_X) / 2 + PIECE_SIZE / 2, LETTER_BACK_BUTTON_Y + PIECE_SIZE / 2))
+                self.draw_letter("Choose another letter", 12, (255,0,0),
+                                        ((LETTER_BACK_BUTTON_X + LETTER_FORWARD_BUTTON_X) / 2 + PIECE_SIZE / 2, LETTER_BACK_BUTTON_Y + PIECE_SIZE - 6))
+        self.draw_img(res.get_back(), 
+                                    (LETTER_BACK_BUTTON_X, LETTER_BACK_BUTTON_Y), (PIECE_SIZE, PIECE_SIZE))
+        self.draw_img(res.get_forward(), 
+                                    (LETTER_FORWARD_BUTTON_X, LETTER_FORWARD_BUTTON_Y), (PIECE_SIZE, PIECE_SIZE))
+        
     def draw_piece_center (self, icon_number):
         if icon_number and icon_number != "None":
             self.draw_piece(icon_number, 
@@ -116,3 +137,9 @@ class BoardRendererSetting(BoardRenderer):
                 return i
             
         return None
+    
+    def is_letter_back(self, pos):
+        return pos [0] >= LETTER_BACK_BUTTON_X and pos [1] >= LETTER_BACK_BUTTON_Y and pos [0] - LETTER_BACK_BUTTON_X <= PIECE_SIZE and pos [1] - LETTER_BACK_BUTTON_Y <= PIECE_SIZE
+    
+    def is_letter_forward(self, pos):
+        return pos [0] >= LETTER_FORWARD_BUTTON_X and pos [1] >= LETTER_FORWARD_BUTTON_Y and pos [0] - LETTER_FORWARD_BUTTON_X <= PIECE_SIZE and pos [1] - LETTER_FORWARD_BUTTON_Y <= PIECE_SIZE

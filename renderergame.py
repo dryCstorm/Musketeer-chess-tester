@@ -45,8 +45,8 @@ class BoardRendererGame(BoardRenderer):
                 self.draw_rect((BOARD_MAIN_OFFSET_X + PIECE_SIZE * (x - 1), BOARD_MAIN_OFFSET_Y + PIECE_SIZE * y), 
                                (PIECE_SIZE, PIECE_SIZE), COLOR_EVEN if (x + y) % 2 else COLOR_ODD)
         
-    def draw_piece (self, piece_symbol, x, y):
-        self.draw_img(res.get_piece_image(piece_symbol), 
+    def draw_piece (self, piece_symbol, x, y, mapper):
+        self.draw_img(res.get_piece_image(piece_symbol, mapper), 
                             (BOARD_MAIN_OFFSET_X + PIECE_SIZE * (x - 1), BOARD_MAIN_OFFSET_Y + PIECE_SIZE * y),
                             (PIECE_SIZE, PIECE_SIZE))
         
@@ -75,9 +75,9 @@ class BoardRendererGame(BoardRenderer):
         self.draw_board_rects()
         self.draw_board_line()
         
-    def draw_pieces(self, pieces):
+    def draw_pieces(self, pieces, mapper):
         for piece in pieces:
-            self.draw_piece(piece[0], piece[1], piece[2])
+            self.draw_piece(piece[0], piece[1], piece[2], mapper)
             
     def highlight_piece_normal(self, pieces):
         for piece in pieces:

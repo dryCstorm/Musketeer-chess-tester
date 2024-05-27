@@ -22,6 +22,11 @@ class BoardRenderer():
     def draw_img (self, img, offset, size):
         self.screen.blit(pygame.transform.scale(img, size), offset)
         
+    def draw_letter(self, letter, size, color, offset):
+        font = pygame.font.Font(None, size)
+        text = font.render(letter, True, color)
+        self.screen.blit(text, (offset [0] - text.get_rect().center [0], offset [1] - text.get_rect().center [1]))
+        
     def draw_line(self, start, end, color = COLOR_BORDER):
         pygame.draw.line(self.screen, color, start, end, 4)
 

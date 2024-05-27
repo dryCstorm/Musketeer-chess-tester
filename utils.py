@@ -5,7 +5,14 @@ def char_to_number(char):
         return None
     
 def number_to_char(number):
+    if number == None:
+        return None
     return chr(number + ord('a') - 1)
+
+def number_to_upper_char(number):
+    if number == None:
+        return None
+    return chr(number + ord('A') - 1)
 
 def analyze_betza_notation(notation):
     # Define movement characteristics
