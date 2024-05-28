@@ -12,6 +12,11 @@ BOARD_MAIN_HEIGHT = PIECE_SIZE * 7
 BOARD_MAIN_OFFSET_X = BOARD_OFFSET_X + (BOARD_WIDTH - BOARD_MAIN_WIDTH) / 2
 BOARD_MAIN_OFFSET_Y = BOARD_OFFSET_Y + (BOARD_HEIGHT - BOARD_MAIN_HEIGHT) / 2
 
+START_BUTTON_X = WINDOW_WIDTH - 100
+START_BUTTON_Y = WINDOW_HEIGHT - 50
+START_BUTTON_W = 100
+START_BUTTON_H = 60
+
 
 BACK_BUTTON_X = BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + BUTTON_SIZE
 BACK_BUTTON_Y = BUTTON_SIZE * 2
@@ -27,7 +32,7 @@ LETTER_FORWARD_BUTTON_Y = BUTTON_SIZE * 3
 
 HEAD_X = BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + BUTTON_SIZE
 HEAD_Y = BUTTON_SIZE
-HEAD_GAP = BUTTON_SIZE * 2
+HEAD_GAP = BUTTON_SIZE * 5
 
 SETTING_OFFSET_X = BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + BUTTON_SIZE * 1.5
 SETTING_OFFSET_Y = BUTTON_SIZE * 4.5
@@ -107,6 +112,17 @@ class BoardRendererSetting(BoardRenderer):
                       (x, y + BUTTON_SIZE),
                       (BUTTON_SIZE, BUTTON_SIZE / 4))
     
+    def draw_length (self, length, x, y):
+        self.draw_letter(str(length), BUTTON_SIZE, (0,0,255),
+            (x + BUTTON_SIZE / 2, y + BUTTON_SIZE / 2))
+        self.draw_img(res.get_arrow_button("L", False),
+                      (x - BUTTON_SIZE / 4, y),
+                      (BUTTON_SIZE / 4, BUTTON_SIZE))
+        
+        self.draw_img(res.get_arrow_button("R", False),
+                      (x + BUTTON_SIZE, y),
+                      (BUTTON_SIZE / 4, BUTTON_SIZE))
+        
     def draw_sh (self, sh, content, x, y):
         self.draw_letter("N/A" if sh == "" else sh, int(BUTTON_SIZE * 0.8) if sh == "" else BUTTON_SIZE, (0,0,255),
             (x + BUTTON_SIZE / 2, y + BUTTON_SIZE / 2))
@@ -120,17 +136,18 @@ class BoardRendererSetting(BoardRenderer):
         self.draw_board_rects()
         self.draw_board_line()
             
-    def draw_head (self, number, icon_number, selected):
+    def draw_head (self, number, icon_number, betza, selected):
         if icon_number:
             self.draw_img(res.get_piece_image(icon_number), 
                                 (HEAD_X + number * HEAD_GAP, HEAD_Y), (BUTTON_SIZE, BUTTON_SIZE))
-            
+        
+        self.draw_letter(betza, BUTTON_SIZE, (0, 0, 255), (HEAD_X + (number + 0.5) * HEAD_GAP, HEAD_Y + BUTTON_SIZE / 2))
         if (selected):
             self.draw_img(res.get_border(), 
                                     (HEAD_X + number * HEAD_GAP, HEAD_Y), (BUTTON_SIZE, BUTTON_SIZE))
         else:
             self.draw_img(res.get_border_light(), 
-                                    (BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + BUTTON_SIZE + number * BUTTON_SIZE * 2, HEAD_Y), (BUTTON_SIZE, BUTTON_SIZE))
+                                    (BOARD_MAIN_OFFSET_X + BOARD_MAIN_WIDTH + BUTTON_SIZE + number * HEAD_GAP, HEAD_Y), (BUTTON_SIZE, BUTTON_SIZE))
             
     def draw_icon_selector(self, icon_number):
         if icon_number and icon_number != "None":
@@ -173,10 +190,13 @@ class BoardRendererSetting(BoardRenderer):
             self.draw_fblr(settings [1], offset_x, offset_y)
             offset_x += SETTING_GAP_X
             
-        
         if (BETZA [settings [0]][2]):
             offset_x -= SETTING_GAP_X
             self.draw_sh(settings [2], "Select S H", offset_x, offset_y)
+            offset_x += SETTING_GAP_X
+            
+        if (BETZA [settings [0]][3]):
+            self.draw_length(settings [3], offset_x, offset_y)
             offset_x += SETTING_GAP_X
         
     def draw_new_movement_button(self, offset):
@@ -184,6 +204,8 @@ class BoardRendererSetting(BoardRenderer):
         self.draw_img(res.get_new_button(),
                       (SETTING_OFFSET_X, offset_y), (BUTTON_SIZE, BUTTON_SIZE))
         
+    def draw_start_button (self):
+        self.draw_letter("Start", 60, (0,0,255), (START_BUTTON_X, START_BUTTON_Y))
 
 # ====================================================================================
 
@@ -235,6 +257,14 @@ class BoardRendererSetting(BoardRenderer):
         if utils.is_in_rect(pos, (x, y), (BUTTON_SIZE, BUTTON_SIZE)):
             return "SH"
         return None
+    
+    def is_length(self, pos, x, y):
+        if utils.is_in_rect(pos, (x - BUTTON_SIZE / 4, y), (BUTTON_SIZE / 4, BUTTON_SIZE)):
+            return "NL"
+        if utils.is_in_rect(pos, (x + BUTTON_SIZE, y), (BUTTON_SIZE / 4, BUTTON_SIZE)):
+            return "NR"
+        return None
+    
     def is_setting_button(self, pos, offset, settings, BETZA):
         res = None
         offset_y = SETTING_OFFSET_Y + SETTING_GAP_Y * offset
@@ -263,4 +293,14 @@ class BoardRendererSetting(BoardRenderer):
         if res:
             return res
         
+        if (BETZA [settings [0]][3]):
+            res = self.is_length(pos, offset_x, offset_y)
+            offset_x += SETTING_GAP_X
+            
+        if res:
+            return res
+        
         return res
+    
+    def is_start_button(self, pos):
+        return utils.is_in_rect(pos, (START_BUTTON_X - START_BUTTON_W / 2, START_BUTTON_Y - START_BUTTON_H / 2), (START_BUTTON_W, START_BUTTON_H))

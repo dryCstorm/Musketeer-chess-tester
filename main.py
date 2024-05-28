@@ -17,7 +17,7 @@ SETTING_STATE_OK = 2
 SETTING_STATE_CANCEL = 3
 
 # F/B/L/R, S/H, LEN, C/M, G/P, J/N
-BETZA = [("W", True, True, True, True, True, True), 
+BETZA = [("W", True, False, True, False, True, True), 
          ("D", True, False, True, True, True, True), 
          ("H", True, False, True, True, True, True), 
          ("F", True, False, True, True, True, True), 
@@ -32,8 +32,24 @@ ICON_COUNT = 26
 
 selected_pieces = [[None, None, []], [None, None, []]]
 
+def build_betja (settings):
+    res = ""
+    for setting in settings:
+        sub = ""
+        for i in range (1, 7):
+            if i != 3 and BETZA [setting [0]][i]:
+                sub += setting [i].lower()
+        sub += BETZA [setting[0]][0]
+        if BETZA[setting [0]][3] and setting [3] != 7:
+            sub += str(setting [3])
+        res += sub
+    return res
+
+setting_state = SETTING_STATE_NONE
+
 def select_piece():
     boardrenderer = BoardRendererSetting(pygame)
+    global setting_state
     setting_state = SETTING_STATE_NONE
     wip_piece = 0
     
@@ -43,7 +59,7 @@ def select_piece():
         boardrenderer.clear()
         boardrenderer.draw_board()
         for i in range (0, len(selected_pieces)):
-            boardrenderer.draw_head (i, selected_pieces [i][0], i == wip_piece)
+            boardrenderer.draw_head (i, selected_pieces [i][0], build_betja(selected_pieces [i][2]), i == wip_piece)
         
         boardrenderer.draw_icon_selector(selected_pieces [wip_piece][0])
         
@@ -62,6 +78,7 @@ def select_piece():
         for index, movement_setting in enumerate(selected_pieces [wip_piece][2]):
             boardrenderer.draw_movement_setting(index, movement_setting, BETZA)
         boardrenderer.draw_new_movement_button(len(selected_pieces [wip_piece][2]))
+        boardrenderer.draw_start_button()
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -91,7 +108,9 @@ def select_piece():
                 elif boardrenderer.is_head(pos, len(selected_pieces)) != None:
                     wip_piece = boardrenderer.is_head(pos, len(selected_pieces))
                 elif boardrenderer.is_new_button(pos, len(selected_pieces [wip_piece][2])):
-                    selected_pieces [wip_piece][2].append([0, "", "", "", "", "", ""])
+                    selected_pieces [wip_piece][2].append([0, "", "", 7, "", "", ""])
+                elif boardrenderer.is_start_button(pos):
+                    setting_state = SETTING_STATE_OK
                 else:
                     for index, movement_setting in enumerate(selected_pieces [wip_piece][2]):
                         button = boardrenderer.is_setting_button (pos, index, movement_setting, BETZA)
@@ -114,6 +133,10 @@ def select_piece():
                                     movement_setting [2] = ""
                                 else:
                                     movement_setting [2] = "S"
+                            if button == "NL":
+                                movement_setting [3] = movement_setting [3] - 1 if movement_setting [3] > 1 else movement_setting [3]
+                            if button == "NR":
+                                movement_setting [3] = movement_setting [3] + 1 if movement_setting [3] < 7 else movement_setting [3]
                             break
                 
         pygame.display.flip()
@@ -124,26 +147,29 @@ def select_piece():
     
 GAME_STATE_PLAYING = 1
 GAME_STATE_FINISHED = 2
+GAME_STATE_MUSKETEER_SETUP = 3
 
 USER_STATE_NONE = 1
 USER_STATE_SELECTED = 2
-
 icon_mapper = {
-    "E": "5",
-    "U": "7",
+    "E":"6",
+    "U":"7"
 }
+
 def play_game ():
     boardrenderer = BoardRendererGame(pygame)
     boardrenderer.clear()
     
-    custom_pieces = [{"name":"Elephant", "letter":"E", "betza":"fhHfrlRK", "position":[3, 2]},
-                     {"name":"Unicorn","letter":"U","betza":"NK","position": [6, 4]}]
+    custom_pieces = [{"name":"", "letter":utils.number_to_upper_char(selected_pieces [0][1]), "betza":build_betja(selected_pieces [0][2]), "position":[None, None]},
+                     {"name":"","letter":utils.number_to_upper_char(selected_pieces [1][1]),"betza":build_betja(selected_pieces [1][2]),"position": [None, None]}]
+    icon_mapper.setdefault(utils.number_to_upper_char(selected_pieces [0][1]), str(selected_pieces [0][0]))
+    icon_mapper.setdefault(utils.number_to_upper_char(selected_pieces [1][1]), str(selected_pieces [1][0]))
     
     board = Musketeer.MusketeerBoard(custom_pieces)
-    game_state = GAME_STATE_PLAYING
+    game_state = GAME_STATE_MUSKETEER_SETUP
     user_state = USER_STATE_NONE
-    custom_pieces = [(),()]
     selected_piece = (0,0)
+    musketeer_positions = [None, None, None, None]
     
     def get_movable_pieces ():
         moves = []
@@ -198,6 +224,42 @@ def play_game ():
                 boardrenderer.highlight_piece_selected([selected_piece])
                 boardrenderer.highlight_piece_normal(movable_pieces_from)
                 
+        if game_state == GAME_STATE_MUSKETEER_SETUP:
+            if musketeer_positions [0] == None:
+                boardrenderer.draw_piece(utils.number_to_upper_char(selected_pieces [0][1]), 8, 3, icon_mapper)
+            else:
+                boardrenderer.draw_piece(utils.number_to_upper_char(selected_pieces [0][1]), musketeer_positions [0], 0, icon_mapper)
+                
+            if musketeer_positions [1] == None:
+                boardrenderer.draw_piece(utils.number_to_upper_char(selected_pieces [1][1]), 8, 4, icon_mapper)
+            else:
+                boardrenderer.draw_piece(utils.number_to_upper_char(selected_pieces [1][1]), musketeer_positions [1], 0, icon_mapper)
+            
+            if musketeer_positions [2] == None:
+                boardrenderer.draw_piece(utils.number_to_char(selected_pieces [0][1]), 1, 5, icon_mapper)
+            else:
+                boardrenderer.draw_piece(utils.number_to_char(selected_pieces [0][1]), musketeer_positions [2], 9, icon_mapper)
+            
+            if musketeer_positions [3] == None:
+                boardrenderer.draw_piece(utils.number_to_char(selected_pieces [1][1]), 1, 6, icon_mapper)
+            else:
+                boardrenderer.draw_piece(utils.number_to_char(selected_pieces [1][1]), musketeer_positions [3], 9, icon_mapper)
+            
+            if musketeer_positions [0] == None:
+                boardrenderer.highlight_piece_normal([(x, 0) for x in range(1, 9)])
+                boardrenderer.highlight_piece_selected([(8, 3)])
+            elif musketeer_positions [2] == None:
+                boardrenderer.highlight_piece_normal([(x, 9) for x in range(1, 9)])
+                boardrenderer.highlight_piece_selected([(1, 5)])
+            elif musketeer_positions [1] == None:
+                boardrenderer.highlight_piece_normal([(x, 0) for x in range(1, 9) if x != musketeer_positions [0]])
+                boardrenderer.highlight_piece_selected([(8, 4)])
+            elif musketeer_positions [3] == None:
+                boardrenderer.highlight_piece_normal([(x, 9) for x in range(1, 9) if x != musketeer_positions [2]])
+                boardrenderer.highlight_piece_selected([(1, 6)])
+            else:
+                board.set_muskeeter_chess_init_position([[musketeer_positions [2], musketeer_positions [0]],[musketeer_positions [3], musketeer_positions [1]]])
+                game_state = GAME_STATE_PLAYING
         # Event Handling
         
         for event in pygame.event.get():
@@ -205,19 +267,36 @@ def play_game ():
                 running = False
                 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if user_state == USER_STATE_NONE:
+                if game_state == GAME_STATE_PLAYING:
+                    if user_state == USER_STATE_NONE:
+                        pos = boardrenderer.get_board_position(pygame.mouse.get_pos())
+                        if pos != None and pos in movable_pieces:
+                            user_state = USER_STATE_SELECTED
+                            selected_piece = pos
+                    elif user_state == USER_STATE_SELECTED:
+                        pos = boardrenderer.get_board_position(pygame.mouse.get_pos())
+                        if pos != None and pos in movable_pieces:
+                            user_state = USER_STATE_SELECTED
+                            selected_piece = pos
+                        elif pos != None and pos in movable_pieces_from:
+                            board.push_uci(f'{utils.number_to_char(selected_piece [0])}{selected_piece [1]}{utils.number_to_char(pos [0])}{pos [1]}')
+                            user_state = USER_STATE_NONE
+
+                if game_state == GAME_STATE_MUSKETEER_SETUP:
                     pos = boardrenderer.get_board_position(pygame.mouse.get_pos())
-                    if pos != None and pos in movable_pieces:
-                        user_state = USER_STATE_SELECTED
-                        selected_piece = pos
-                elif user_state == USER_STATE_SELECTED:
-                    pos = boardrenderer.get_board_position(pygame.mouse.get_pos())
-                    if pos != None and pos in movable_pieces:
-                        user_state = USER_STATE_SELECTED
-                        selected_piece = pos
-                    elif pos != None and pos in movable_pieces_from:
-                        board.push_uci(f'{utils.number_to_char(selected_piece [0])}{selected_piece [1]}{utils.number_to_char(pos [0])}{pos [1]}')
-                        user_state = USER_STATE_NONE
+                    if pos == None:
+                        continue
+                    if musketeer_positions [0] == None and pos [1] == 0:
+                        musketeer_positions [0] = pos [0]
+                    
+                    elif musketeer_positions [2] == None and pos [1] == 9:
+                        musketeer_positions [2] = pos [0]
+                        
+                    elif musketeer_positions [1] == None and pos [1] == 0 and pos [0] != musketeer_positions [0]:
+                        musketeer_positions [1] = pos [0]
+                    
+                    elif musketeer_positions [3] == None and pos [1] == 9 and pos [0] != musketeer_positions [2]:
+                        musketeer_positions [3] = pos [0]
         
         pygame.display.flip()
         game_clock.tick(60)
@@ -225,4 +304,5 @@ def play_game ():
 
 if __name__ == "__main__":
     select_piece()
-    play_game()
+    if (setting_state == SETTING_STATE_OK):
+        play_game()
