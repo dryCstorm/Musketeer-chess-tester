@@ -1,4 +1,5 @@
 from rendererbase import *
+import utils
 
 PIECE_SIZE = 60
 BOARD_WIDTH = 560
@@ -90,7 +91,12 @@ class BoardRendererGame(BoardRenderer):
     def highlight_piece_selected(self, pieces):
         for piece in pieces:
             self.draw_highlight_selected(piece[0], piece[1])
-            
+       
+    def draw_buttons(self):
+        self.draw_letter("Save", 50, (0,0,255), (BOARD_WIDTH + BOARD_OFFSET_X + PIECE_SIZE * 2, PIECE_SIZE * 2))
+        self.draw_letter("Load", 50, (0,0,255), (BOARD_WIDTH + BOARD_OFFSET_X + PIECE_SIZE * 2, PIECE_SIZE * 4))
+        self.draw_letter("Undo", 50, (0,0,255), (BOARD_WIDTH + BOARD_OFFSET_X + PIECE_SIZE * 2, PIECE_SIZE * 6))
+        
 # ====================================================================================
 
     def get_board_position(self, pos):
@@ -100,3 +106,12 @@ class BoardRendererGame(BoardRenderer):
             return None
         
         return (x, y)
+    
+    def is_on_save (self, pos):
+        return utils.is_in_rect(pos, (BOARD_WIDTH + BOARD_OFFSET_X + PIECE_SIZE, PIECE_SIZE * 1.5), (PIECE_SIZE * 2, PIECE_SIZE))
+    
+    def is_on_load (self, pos):
+        return utils.is_in_rect(pos, (BOARD_WIDTH + BOARD_OFFSET_X + PIECE_SIZE, PIECE_SIZE * 3.5), (PIECE_SIZE * 2, PIECE_SIZE))
+    
+    def is_on_undo (self, pos):
+        return utils.is_in_rect(pos, (BOARD_WIDTH + BOARD_OFFSET_X + PIECE_SIZE, PIECE_SIZE * 5.5), (PIECE_SIZE * 2, PIECE_SIZE))

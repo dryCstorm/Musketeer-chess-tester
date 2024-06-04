@@ -1,11 +1,14 @@
 import pygame
 import library.chess.musketeer as Musketeer
+import library.chess.pgn as pgn
 import res
 import library.chess as Chess
 import utils
 import math
 from renderergame import BoardRendererGame
 from renderersetting import BoardRendererSetting
+import tkinter as tk
+from tkinter import filedialog
 
 pygame.init()
 pygame.display.set_caption("Musketeer Chess")
@@ -44,6 +47,21 @@ def build_betja (settings):
             sub += str(setting [3])
         res += sub
     return res
+
+
+def save_file_dialog():
+   root = tk.Tk()
+   root.withdraw()  # Hide the main Tkinter window
+    
+   file_path = filedialog.asksaveasfilename(defaultextension='.pgn', filetypes=[("Text files", "*.txt, *.pgn"), ("All files", "*.*")])
+   return file_path
+
+def load_file_dialog():
+   root = tk.Tk()
+   root.withdraw()  # Hide the main Tkinter window
+    
+   file_path = filedialog.askopenfilename(initialdir="./")
+   return file_path
 
 setting_state = SETTING_STATE_NONE
 
@@ -151,21 +169,20 @@ GAME_STATE_MUSKETEER_SETUP = 3
 
 USER_STATE_NONE = 1
 USER_STATE_SELECTED = 2
-icon_mapper = {
-    "E":"6",
-    "U":"7"
-}
 
 def play_game ():
     boardrenderer = BoardRendererGame(pygame)
     boardrenderer.clear()
     
-    custom_pieces = [{"name":"", "letter":utils.number_to_upper_char(selected_pieces [0][1]), "betza":build_betja(selected_pieces [0][2]), "position":[None, None]},
-                     {"name":"","letter":utils.number_to_upper_char(selected_pieces [1][1]),"betza":build_betja(selected_pieces [1][2]),"position": [None, None]}]
-    icon_mapper.setdefault(utils.number_to_upper_char(selected_pieces [0][1]), str(selected_pieces [0][0]))
-    icon_mapper.setdefault(utils.number_to_upper_char(selected_pieces [1][1]), str(selected_pieces [1][0]))
+    custom_pieces = [{"name":"", "letter":utils.number_to_upper_char(selected_pieces [0][1]), "betza":build_betja(selected_pieces [0][2]), "position":[None, None], "icon":str(selected_pieces [0][0])},
+                     {"name":"","letter":utils.number_to_upper_char(selected_pieces [1][1]),"betza":build_betja(selected_pieces [1][2]),"position": [None, None], "icon":str(selected_pieces [1][0])}]
+    #custom_pieces = [{"name":"", "letter":"D", "betza":"ND", "icon":"6", "position":[2, 3]},
+    #                 {"name":"","letter":"C","betza":"JA2W3", "icon":"10", "position": [4, 5]}]
+    board = Musketeer.MusketeerBoard(custom_pieces)#, "cd******/nrbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/C**D**** w KQkq - 0 1")
+    game = pgn.Game()
+    node = game
+    game.setup(board)
     
-    board = Musketeer.MusketeerBoard(custom_pieces)
     game_state = GAME_STATE_MUSKETEER_SETUP
     user_state = USER_STATE_NONE
     selected_piece = (0,0)
@@ -202,7 +219,7 @@ def play_game ():
                 pieces.append((str(piece), square % 8 + 1, math.floor(square / 8) + 1))
         
         for musketeer in board.inplaced_musketeer_pieces():
-            pieces.append(musketeer)
+           pieces.append(musketeer)
         
         
         return pieces
@@ -215,7 +232,8 @@ def play_game ():
         
         # Drawing
         boardrenderer.draw_board()
-        boardrenderer.draw_pieces(get_pieces (), icon_mapper)
+        boardrenderer.draw_pieces(get_pieces (), board.get_icon_mapper())
+        boardrenderer.draw_buttons()
         if game_state == GAME_STATE_PLAYING:
             if user_state == USER_STATE_NONE:
                 boardrenderer.highlight_piece_normal(movable_pieces)
@@ -226,24 +244,24 @@ def play_game ():
                 
         if game_state == GAME_STATE_MUSKETEER_SETUP:
             if musketeer_positions [0] == None:
-                boardrenderer.draw_piece(utils.number_to_upper_char(selected_pieces [0][1]), 8, 3, icon_mapper)
+                boardrenderer.draw_piece(custom_pieces [0]["letter"], 8, 3, board.get_icon_mapper())
             else:
-                boardrenderer.draw_piece(utils.number_to_upper_char(selected_pieces [0][1]), musketeer_positions [0], 0, icon_mapper)
+                boardrenderer.draw_piece(custom_pieces [0]["letter"], musketeer_positions [0], 0, board.get_icon_mapper())
                 
             if musketeer_positions [1] == None:
-                boardrenderer.draw_piece(utils.number_to_upper_char(selected_pieces [1][1]), 8, 4, icon_mapper)
+                boardrenderer.draw_piece(custom_pieces [1]["letter"], 8, 4, board.get_icon_mapper())
             else:
-                boardrenderer.draw_piece(utils.number_to_upper_char(selected_pieces [1][1]), musketeer_positions [1], 0, icon_mapper)
+                boardrenderer.draw_piece(custom_pieces [1]["letter"], musketeer_positions [1], 0, board.get_icon_mapper())
             
             if musketeer_positions [2] == None:
-                boardrenderer.draw_piece(utils.number_to_char(selected_pieces [0][1]), 1, 5, icon_mapper)
+                boardrenderer.draw_piece(custom_pieces [0]["letter"].lower(), 1, 5, board.get_icon_mapper())
             else:
-                boardrenderer.draw_piece(utils.number_to_char(selected_pieces [0][1]), musketeer_positions [2], 9, icon_mapper)
+                boardrenderer.draw_piece(custom_pieces [0]["letter"].lower(), musketeer_positions [2], 9, board.get_icon_mapper())
             
             if musketeer_positions [3] == None:
-                boardrenderer.draw_piece(utils.number_to_char(selected_pieces [1][1]), 1, 6, icon_mapper)
+                boardrenderer.draw_piece(custom_pieces [1]["letter"].lower(), 1, 6, board.get_icon_mapper())
             else:
-                boardrenderer.draw_piece(utils.number_to_char(selected_pieces [1][1]), musketeer_positions [3], 9, icon_mapper)
+                boardrenderer.draw_piece(custom_pieces [1]["letter"].lower(), musketeer_positions [3], 9, board.get_icon_mapper())
             
             if musketeer_positions [0] == None:
                 boardrenderer.highlight_piece_normal([(x, 0) for x in range(1, 9)])
@@ -268,6 +286,26 @@ def play_game ():
                 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if game_state == GAME_STATE_PLAYING:
+                    if boardrenderer.is_on_save(pygame.mouse.get_pos()):
+                        pgn_path = save_file_dialog()
+                        if pgn_path != None and pgn_path != "":                        
+                            with open(pgn_path, 'w') as file:
+                                pgn.save_game(file, game, game.accept(pgn.StringExporter(headers=False)))
+                            print ("============================================= ", board)
+                    if boardrenderer.is_on_load(pygame.mouse.get_pos()):
+                        pgn_path = load_file_dialog()
+                        if pgn_path != None and pgn_path != "":
+                            with open(pgn_path) as file:
+                                ogame = pgn.read_game(file)
+                                board = ogame.board()
+                                game = ogame
+                                moveArray = ogame.mainline_moves()
+                                for move in moveArray:
+                                    board.push(move)
+                                    game = game.add_variation(Chess.Move.from_uci(board, move.uci()))
+                        print("Load")
+                    if boardrenderer.is_on_undo(pygame.mouse.get_pos()):
+                        print("Undo")
                     if user_state == USER_STATE_NONE:
                         pos = boardrenderer.get_board_position(pygame.mouse.get_pos())
                         if pos != None and pos in movable_pieces:
@@ -279,7 +317,9 @@ def play_game ():
                             user_state = USER_STATE_SELECTED
                             selected_piece = pos
                         elif pos != None and pos in movable_pieces_from:
-                            board.push_uci(f'{utils.number_to_char(selected_piece [0])}{selected_piece [1]}{utils.number_to_char(pos [0])}{pos [1]}')
+                            move = f'{utils.number_to_char(selected_piece [0])}{selected_piece [1]}{utils.number_to_char(pos [0])}{pos [1]}'
+                            node = node.add_variation(Chess.Move.from_uci(board, move))
+                            board.push_uci(move)
                             user_state = USER_STATE_NONE
 
                 if game_state == GAME_STATE_MUSKETEER_SETUP:
